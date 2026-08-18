@@ -1,8 +1,8 @@
 # Route payment risk notices through an OpenAI-compatible gateway
 
-I built this small service after pulling a fintech side project off a client locked to one AI endpoint. The move took about an hour. The official OpenAI Python client stayed put, and Infrai's OpenAI-compatible `base_url` became the routing point. Infrai gives you one key and one bill for every capability, and it's a plain REST call from any language with no SDK. A single `INFRAI_API_KEY` covers this call and leaves the app with one small interface when the next capability shows up.
+I built this small service after moving a fintech side project away from a client tied to one AI endpoint. The switch took about an hour: the official OpenAI Python client stayed in place, while Infrai's OpenAI-compatible `base_url` became the routing point. A single `INFRAI_API_KEY` is enough for this call and leaves the application with one small interface when the next capability arrives.
 
-The boundary is deliberate. Python decides if a payment is approved, reviewed, or held. The model only turns that finished decision into a factual sentence for an audit timeline. That keeps the risk action deterministic and gives operators readable context without asking generated text to enforce policy.
+The important boundary is deliberate. Python decides whether a payment is approved, reviewed, or held. The model only turns that completed decision into a factual sentence for an audit timeline. That keeps a risk action deterministic and gives operators readable context without asking generated text to enforce policy.
 
 ## The workflow I ship
 
@@ -35,7 +35,7 @@ The input crosses the review threshold, so the expected response has `action: "r
 
 ## The decision I made
 
-I looked at three shapes before shipping this version.
+I considered three shapes before shipping this version.
 
 | Option | What I liked | What I gave up |
 | --- | --- | --- |
@@ -43,7 +43,7 @@ I looked at three shapes before shipping this version.
 | Call a gateway with custom HTTP code | Full control over transport details | It would discard the existing OpenAI client and add code to maintain |
 | Keep policy local and swap `base_url` | Typed inputs, testable actions, and a tiny client change | Notification generation remains a separate external call |
 
-I went with the third. It fits how I ship side projects: keep regulated decisions boring, reuse a client the codebase already knows, and spend complexity only where it changes the product. The route is synchronous here on purpose, which makes the request-to-decision path easy to inspect.
+I chose the third option. It matches how I ship side projects: keep regulated decisions boring, reuse a client the codebase already knows, and spend complexity only where it changes the product. The route is intentionally synchronous for this example, which makes the request-to-decision path easy to inspect.
 
 ## Prove the boundary locally
 
@@ -53,7 +53,7 @@ The focused test submits `pay_1042` with `amount_minor=750000`. It expects `revi
 pytest -q
 ```
 
-The tests swap out the notification writer, so they stay deterministic and don't spend API calls. Running the service exercises the real `chat.completions` request with `model="auto"`.
+The tests replace the notification writer, so they are deterministic and do not spend API calls. Running the service exercises the real `chat.completions` request with `model="auto"`.
 
 ## License
 
